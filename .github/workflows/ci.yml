@@ -1,4 +1,4 @@
-name: Go package
+name: Upload Go test results
 
 on: [push]
 
@@ -8,31 +8,20 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go-version: ['1.19']
+        go-version: [ '1.14', '1.15', '1.16.x' ]
+
     steps:
       - uses: actions/checkout@v3
-
-      - name: Set up Go
+      - name: Setup Go
         uses: actions/setup-go@v3
         with:
           go-version: ${{ matrix.go-version }}
-          cache: true
-      
-      - name: Install depencies
-        run: | 
-          go get github.com/sirupsen/logrus
-
-
-      - name: Test
-        run: go test -v ./...
-
-      - name: Build
-        run: go build -v ./... && ./actions
-
+      - name: Install dependencies
+        run: go get .
+      - name: Test with Go
+        run: go test -json > TestResults-${{ matrix.go-version }}.json
       - name: Upload Go test results
         uses: actions/upload-artifact@v3
         with:
           name: Go-results-${{ matrix.go-version }}
           path: TestResults-${{ matrix.go-version }}.json
-
-
