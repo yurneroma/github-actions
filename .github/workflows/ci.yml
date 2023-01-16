@@ -6,13 +6,17 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: ['1.14', '1.19']
     steps:
       - uses: actions/checkout@v3
 
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
-          go-version: 1.19
+          go-version: ${{ matrix.go-version }}
+          cache: true
       
       - name: Install depencies
         run: | 
@@ -24,4 +28,11 @@ jobs:
 
       - name: Build
         run: go build -v ./... && ./actions
+
+      - name: Upload Go test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: Go-results-${{ matrix.go-version }}
+          path: TestResults-${{ matrix.go-version }}.json
+
 
